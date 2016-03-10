@@ -37,6 +37,25 @@ class TripAdvisor(object):
 			new_url= self.url[:marker]+"or"+str(i*10)+"-"+self.url[marker:]
 			links.append(new_url)
 		return links
+	def get_data(self):
+		links= self.generate_link()
+		base_url="https://www.tripadvisor.in"
+		reviews=[]
+		for i in links:
+			response= urlopen(i).read()
+			soup= BeautifulSoup(response)
+			review_link=soup.find_all('div',{'class':'quote'})
+
+			for j in review_link:
+				rl = j.find("a",href=True)
+				review_res= urlopen(base_url+rl['href']).read()
+				soup2= BeautifulSoup(review_res)
+				rating=soup2.find('img',{'class':'sprite-rating_s_fill'})['alt']
+				review= soup2.find('p',{'property':'reviewBody'}).text +"\n"+"rating: "+ rating
+
+				reviews.append(review)
+		return reviews
+
 	def make_call(self):
 		links= self.generate_link()
 		raw_html=[]
@@ -52,13 +71,15 @@ class TripAdvisor(object):
 		return raw_reviews
 
 	def get_reviews(self):
-		raw_reviews= self.parse_reviews()
+		raw_reviews= self.make_call()
+		# return type(raw_reviews[0])
 		base_url= "https://www.tripadvisor.in"
 		# return raw_reviews
 		result=[]
+		return raw_reviews
 		for i in raw_reviews:
-			soup=BeautifulSoup(i)
-			rating=soup.find('img',{'class':'spritie_rating_sfill'}).get('alt','')
+			soup= BeautifulSoup(i)
+			rating=soup.find_all('img',{'class':'spritie_rating_sfill'})
 			review_link=base_url+soup.find('div',{'class':'quote'}).find('a',href=True)['href']
 			response = urlopen(review_link).read()
 			soup = BeautifulSoup(response)
@@ -71,8 +92,10 @@ class TripAdvisor(object):
 
 test_url="https://www.tripadvisor.in/Restaurant_Review-g1162523-d4009998-Reviews-The_Beer_Cafe-Kirtinagar_Uttarakhand.html"
 test= TripAdvisor(test_url)
-# print (test.get_reviews())
+r= test.get_data()
+# for i in r:
+print(r)
 with open("review_test","wb+") as f:
-	for i in test.get_reviews():
-		f.write("%s\n" % i)
+	for i in r:
+		f.write(bytes(i+"\n", 'UTF-8'))
   # thefile.write("%s\n" % item)
