@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from datum import DatumBox
 # import ssl
 # from functools import wraps
 # def sslwrap(func):
@@ -37,8 +38,8 @@ class TripAdvisor(object):
 			new_url= self.url[:marker]+"or"+str(i*10)+"-"+self.url[marker:]
 			links.append(new_url)
 		return links
-	def get_data(self):
-		links= self.generate_link()
+	def get_data(self,links):
+		# links= self.generate_link()
 		base_url="https://www.tripadvisor.in"
 		reviews=[]
 		for i in links:
@@ -51,11 +52,21 @@ class TripAdvisor(object):
 				review_res= urlopen(base_url+rl['href']).read()
 				soup2= BeautifulSoup(review_res)
 				rating=soup2.find('img',{'class':'sprite-rating_s_fill'})['alt']
-				review= soup2.find('p',{'property':'reviewBody'}).text +"\n"+"rating: "+ rating
+				review= soup2.find('p',{'property':'reviewBody'}).text +"\n"+"#rating: "+ rating
 
 				reviews.append(review)
 		return reviews
-
+	def main(self):
+		counter=0
+		links=self.generate_link()
+		flag= len(links)
+		while counter<flag:
+			rev= self.get_data(links[counter:counter+10])
+			revtstr= " ".join(rev)
+			d= DatumBox()
+			a= d.get_keywords(revtstr)
+			print (a)
+			counter+=10
 	def make_call(self):
 		links= self.generate_link()
 		raw_html=[]
@@ -92,10 +103,10 @@ class TripAdvisor(object):
 
 test_url="https://www.tripadvisor.in/Restaurant_Review-g1162523-d4009998-Reviews-The_Beer_Cafe-Kirtinagar_Uttarakhand.html"
 test= TripAdvisor(test_url)
-r= test.get_data()
+r= test.main()
 # for i in r:
 print(r)
-with open("review_test","wb+") as f:
-	for i in r:
-		f.write(bytes(i+"\n", 'UTF-8'))
+# with open("review_test","wb+") as f:
+# 	for i in r:
+# 		f.write(bytes(i+"\n", 'UTF-8'))
   # thefile.write("%s\n" % item)
