@@ -52,16 +52,17 @@ class FacebookSignIn(OAuthSignIn):
     def get_token(self,code):
         from urllib.parse import urlparse
         from urllib.request import urlopen
-        link="https://graph.facebook.com/oauth/access_token?" "client_id="+self.consumer_id+"&redirect_uri="+self.get_callback_url+"&client_secret="+self.consumer_secret+"&code="+code
+        link="https://graph.facebook.com/oauth/access_token?" "client_id="+self.consumer_id+"&redirect_uri="+self.get_callback_url()+"&client_secret="+self.consumer_secret+"&code="+code
         link= urlparse(link).geturl()
         response=urlopen(link).read()
-        try:
-            andindex=response.index('&')
-            start=len("access_token=")
-            return response[start:andindex]
-        except Exception as e:
-            return "Bad Response"
-        
+        # return response.index('&')
+        start= len("access_token=")
+        end=len("&expires=5128227")
+
+        response= response[start:]
+        response=response[:-end]
+        return response
+      
     def get_exended_token(self,access_token):
         import facebook
         graph= facebook.GraphAPI(access_token)
@@ -70,7 +71,15 @@ class FacebookSignIn(OAuthSignIn):
 
     def callback(self):
         if 'code' not in request.args:
-            return None, None, None
+            return None, None, 
+        code= request.args['code']
+        token= self.get_token(code)
+        # return token
+        from urllib.parse import urlparse
+        link = "https://graph.facebook.com/me?access_token="+str(token)
+        link =urlparse(link).geturl()
+        # return link
+        return "<a href="+link+"> Test Token </a>"
         # oauth_session = self.service.get_auth_session(
         #     data={'code': request.args['code'],
         #           'grant_type': 'authorization_code',
