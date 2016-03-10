@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from datum import DatumBox
+from collections import Counter
 # import ssl
 # from functools import wraps
 # def sslwrap(func):
@@ -60,12 +61,14 @@ class TripAdvisor(object):
 		counter=0
 		links=self.generate_link()
 		flag= len(links)
+		res=Counter({})
 		while counter<flag:
 			rev= self.get_data(links[counter:counter+1])
 			revtstr= " ".join(rev)
 			d= DatumBox()
 			print("datum")
-			a= d.get_keywords(revtstr)
+			a= Counter(d.get_keywords(revtstr))
+			res= res+a
 			print (a)
 			counter+=1
 	def make_call(self):
