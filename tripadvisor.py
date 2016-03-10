@@ -1,6 +1,15 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+# import ssl
+# from functools import wraps
+# def sslwrap(func):
+#     @wraps(func)
+#     def bar(*args, **kw):
+#         kw['ssl_version'] = ssl.PROTOCOL_TLSv1
+#         return func(*args, **kw)
+#     return bar
 
+# ssl.wrap_socket = sslwrap(ssl.wrap_socket)
 class TripAdvisor(object):
 	"""docstring for"""
 	def __init__(self,url):
@@ -9,13 +18,22 @@ class TripAdvisor(object):
 		response= urlopen(self.url).read()
 		soup = BeautifulSoup(response)
 		links= soup.find_all('a',{'class':'pageNum'})
-		return int(links[-1].text)
+		# return links
+		try:
+			return int(links[-1].text)
+		except Exception as e:
+			return 1
+		
 	def generate_link(self):
 		endvalue= self.last_links()
-		links=[]
+		links=[self.url]
+		if endvalue==1:
+			return links
+			
+		
 		add= len('Reviews-')
 		marker= self.url.index('Reviews-')+add
-		for i in range(0,endvalue):
+		for i in range(1,endvalue):
 			new_url= self.url[:marker]+"or"+str(i*10)+"-"+self.url[marker:]
 			links.append(new_url)
 		return links
@@ -31,11 +49,12 @@ class TripAdvisor(object):
 		for i in raw_html:
 			soup= BeautifulSoup(i)
 			raw_reviews.append(soup.find_all('div',{'class':'innerBubble'}))
+		return raw_reviews
 
 	def get_reviews(self):
 		raw_reviews= self.parse_reviews()
 		base_url= "https://www.tripadvisor.in"
-		return raw_reviews
+		# return raw_reviews
 		result=[]
 		for i in raw_reviews:
 			soup=BeautifulSoup(i)
@@ -50,8 +69,9 @@ class TripAdvisor(object):
 			
 
 
-
-test= TripAdvisor("https://www.tripadvisor.in/Restaurant_Review-g304551-d1417229-Reviews-Indian_Accent-New_Delhi_National_Capital_Territory_of_Delhi.html#REVIEWS")
+test_url="https://www.tripadvisor.in/Restaurant_Review-g1162523-d4009998-Reviews-The_Beer_Cafe-Kirtinagar_Uttarakhand.html"
+test= TripAdvisor(test_url)
+# print (test.get_reviews())
 with open("review_test","wb+") as f:
 	for i in test.get_reviews():
 		f.write("%s\n" % i)
