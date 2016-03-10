@@ -53,7 +53,7 @@ class TripAdvisor(object):
 				soup2= BeautifulSoup(review_res)
 				rating=soup2.find('img',{'class':'sprite-rating_s_fill'})['alt']
 				review= soup2.find('p',{'property':'reviewBody'}).text +"\n"+"#rating: "+ rating
-
+				print("chunk done")
 				reviews.append(review)
 		return reviews
 	def main(self):
@@ -61,12 +61,13 @@ class TripAdvisor(object):
 		links=self.generate_link()
 		flag= len(links)
 		while counter<flag:
-			rev= self.get_data(links[counter:counter+10])
+			rev= self.get_data(links[counter:counter+1])
 			revtstr= " ".join(rev)
 			d= DatumBox()
+			print("datum")
 			a= d.get_keywords(revtstr)
 			print (a)
-			counter+=10
+			counter+=1
 	def make_call(self):
 		links= self.generate_link()
 		raw_html=[]
@@ -101,7 +102,7 @@ class TripAdvisor(object):
 			
 
 
-test_url="https://www.tripadvisor.in/Restaurant_Review-g1162523-d4009998-Reviews-The_Beer_Cafe-Kirtinagar_Uttarakhand.html"
+test_url="https://www.tripadvisor.in/Restaurant_Review-g304551-d1417229-Reviews-Indian_Accent-New_Delhi_National_Capital_Territory_of_Delhi.html"
 test= TripAdvisor(test_url)
 r= test.main()
 # for i in r:
