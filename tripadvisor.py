@@ -68,8 +68,11 @@ class TripAdvisor(object):
 			d= DatumBox()
 			print("datum")
 			a= Counter(d.get_keywords(revtstr))
+			# print (a[4])
 			res= res+a
-			print (a)
+			most_frequent_words_so_far = Counter(res).most_common(20)
+			print (most_frequent_words_so_far)
+			# print (most_frequent_words_so_far)
 			counter+=1
 	def make_call(self):
 		links= self.generate_link()
